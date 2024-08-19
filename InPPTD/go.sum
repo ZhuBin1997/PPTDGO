@@ -1,0 +1,10 @@
+github.com/Nik-U/pbc v0.0.0-20181205041846-3e516ca0c5d6 h1:GU/vL5sj0IgGYEOIIAJ1HDI9dgqT0gJXkhXINri7Otc=
+github.com/Nik-U/pbc v0.0.0-20181205041846-3e516ca0c5d6/go.mod h1:Zt2U1SemYWNGXqS1fDiZC7u74nsJTAnWK5WVgvI8OAs=
+github.com/ncw/gmp v1.0.5 h1:M9RcsT/va6zg76cgdrwFS3YHTVSXDxfFRNiAZOUaizI=
+github.com/ncw/gmp v1.0.5/go.mod h1:cDbCx93DFhzP32H3rnwwt6QnIXNL5wu4jLPCNaExheI=
+github.com/sachaservan/paillier v0.0.0-20180822134936-0b770408f3d5 h1:sbkjSshO+SXolAvYVxhq1EYca6MdF42k5BUdMYOCqpc=
+github.com/sachaservan/paillier v0.0.0-20180822134936-0b770408f3d5/go.mod h1:2ZvH2gnl2uZk5Y0e818ZlSg9XonReajybCR0UgoeDpc=
+github.com/sachaservan/paillier v0.0.0-20201023202229-4a2040332c50 h1:1koK04J8gPbhyUn3GUwnWGlm6VGicyGktEsdzgdo0hE=
+github.com/sachaservan/paillier v0.0.0-20201023202229-4a2040332c50/go.mod h1:2ZvH2gnl2uZk5Y0e818ZlSg9XonReajybCR0UgoeDpc=
+github.com/sachaservan/paillier v0.0.0-20201119232153-30237183ba29 h1:XcW8sowzMMSw0k/1rV94Hg6vKt/y2mii0HUkULq6YxI=
+github.com/sachaservan/paillier v0.0.0-20201119232153-30237183ba29/go.mod h1:2ZvH2gnl2uZk5Y0e818ZlSg9XonReajybCR0UgoeDpc=

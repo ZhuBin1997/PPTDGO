@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/sachaservan/paillier"
 	"log"
 	"math"
 	"math/big"
@@ -11,10 +10,13 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/sachaservan/paillier"
 )
 
-//var gopath = "/home/PPTD/src/PPTDGO"
-var gopath = "D:/MyDocuments/Workspace/InPPTD/PPTDGO"
+var gopath = "/home/refrain/workspace/InPPTD-code/PPTD/InPPTD"
+
+// var gopath = "D:/MyDocuments/Workspace/InPPTD/PPTDGO"
 
 //var gopath = "/home/gopath"
 
@@ -22,7 +24,7 @@ var gopath = "D:/MyDocuments/Workspace/InPPTD/PPTDGO"
 // keyBits 是 q1 与 q2 的长度
 
 func init() {
-	file := gopath + "/src/InPPTD/" + "InPPTD" + ".txt"
+	file := gopath + "/InPPTD/" + "InPPTD" + ".txt"
 	logFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
 	if err != nil {
 		panic(err)
@@ -60,7 +62,7 @@ func main() {
 func Benchmark(
 	workerNumber, objectNumber, keyBits, magnitude int,
 ) {
-	filename := gopath + "/src/normalworkers.csv"
+	filename := gopath + "/normalworkers.csv"
 	sp, cp := InitializationPhase(keyBits, magnitude)
 	ReportPhase(sp, cp, workerNumber, objectNumber, filename)
 	IterationPhase(sp, cp)
@@ -78,7 +80,7 @@ func TestInPPTD() {
 	objectNumber := 5
 	keyBits := 128
 	magnitude := 10
-	filename := gopath + "/src/normalworkers.csv"
+	filename := gopath + "/normalworkers.csv"
 
 	sp, cp := InitializationPhase(keyBits, magnitude)
 	ReportPhase(sp, cp, workerNumber, objectNumber, filename)
@@ -181,8 +183,8 @@ type CP struct {
 	IterationPhaseTime float64
 }
 
-//Initialization Phase 生成密钥
-//messageBits is the length of q1 and q2
+// Initialization Phase 生成密钥
+// messageBits is the length of q1 and q2
 func InitializationPhase(
 	keyBits int,
 	magnitude int,
@@ -223,7 +225,7 @@ func ReportPhase(sp *SP, cp *CP, K, M int, filename string) {
 	ReportPhaseStep3(cp)
 }
 
-//数据扰动，worker执行
+// 数据扰动，worker执行
 func ReportPhaseStep1(sp *SP, cp *CP, K, M int, filename string) {
 	rand.Seed(time.Now().UnixNano())
 	sp.K = K
@@ -379,7 +381,7 @@ func IterationPhase(sp *SP, cp *CP) {
 	for k := 0; k < K; k++ {
 		//TODO ak的选取，要做的更长的话开销是否更大
 		//aKInt[k]=rand.Intn(62)
-		cp.aKInt[k] = rand.Intn(int(sp.keyBits/2))
+		cp.aKInt[k] = rand.Intn(int(sp.keyBits / 2))
 		cp.aKBigIntL[k] = float64toBigInt(float64(cp.aKInt[k]), cp.LBigFloat)
 		mantExpak, _ := new(big.Float).SetMantExp(big.NewFloat(1), cp.aKInt[k]).Int(paillier.ZERO)
 		CK2[k] = pk.ECMult(CK[k], mantExpak)
@@ -484,8 +486,8 @@ func IterationPhase(sp *SP, cp *CP) {
 
 }
 
-//TODO Reward Phase
-//task i; Pi is the total rewards for task i.
+// TODO Reward Phase
+// task i; Pi is the total rewards for task i.
 func RewardPhase(sp *SP, cp *CP, Pi float64) (rewards []float64) {
 	Si := 0.0
 	K := cp.K
@@ -553,7 +555,7 @@ func Error(err error) {
 	}
 }
 
-//检测两数组各元素差异，判断是否收敛
+// 检测两数组各元素差异，判断是否收敛
 func convergenceTest(x1 []*big.Int, x2 []*big.Int, objectNumber int, accuracy int, magnitude int) bool {
 	length := 0
 	if magnitude-accuracy > 0 {
@@ -572,7 +574,7 @@ func convergenceTest(x1 []*big.Int, x2 []*big.Int, objectNumber int, accuracy in
 	return true
 }
 
-//L=exp(magnitude)
+// L=exp(magnitude)
 func float64toBigInt(x float64, L *big.Float) *big.Int {
 	xBig, _ := new(big.Float).Mul(big.NewFloat(x), L).Int(paillier.ZERO)
 	return xBig

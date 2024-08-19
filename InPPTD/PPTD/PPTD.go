@@ -25,11 +25,12 @@ import (
 	// "github.com/Nik-U/pbc"
 )
 
-var gopath = "D:/MyDocuments/Workspace/InPPTD/PPTDGO"
-//var gopath = "/home/PPTD/src/PPTDGO"
+// var gopath = "D:/MyDocuments/Workspace/InPPTD/PPTDGO"
+// var gopath = "/home/PPTD/PPTDGO"
+var gopath = "/home/refrain/workspace/InPPTD-code/PPTD/InPPTD"
 
 func init() {
-	file := gopath + "/src/PPTD/" + "PPTD" + ".txt"
+	file := gopath + "/PPTD/" + "PPTD" + ".txt"
 	logFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
 	if err != nil {
 		panic(err)
@@ -65,7 +66,7 @@ func main() {
 }
 
 func Benchmark(userNumber, objectNumber, publicKeyBitLength, magnitude int) {
-	filename := gopath + "/src/normalworkers.csv"
+	filename := gopath + "/normalworkers.csv"
 	cloud, userGroup := SystemGen(userNumber, objectNumber, filename, publicKeyBitLength, magnitude)
 
 	cloud.step1()
@@ -417,7 +418,7 @@ func TestPPTD() {
 	objectNumber := 10
 	publicKeyBitLength := 2048
 	magnitude := 10
-	filename := gopath + "/src/normalworkers.csv"
+	filename := gopath + "/normalworkers.csv"
 	cloud, userGroup := SystemGen(userNumber, objectNumber, filename, publicKeyBitLength, magnitude)
 	cloud.step1()
 
@@ -460,7 +461,7 @@ func Error(err error) {
 	}
 }
 
-//生成count个[start,end)结束的不重复的随机数
+// 生成count个[start,end)结束的不重复的随机数
 func generateRandomNumber(start int, end int, count int) []int {
 	//范围检查
 	if end < start || (end-start) < count {
@@ -490,7 +491,7 @@ func generateRandomNumber(start int, end int, count int) []int {
 	return nums
 }
 
-//对密文数组求和
+// 对密文数组求和
 func cipertextArraySum(
 	array []*paillier.Ciphertext,
 	length int,
@@ -505,7 +506,7 @@ func cipertextArraySum(
 	return encryptedSum
 }
 
-//检测两数组各元素差异，判断是否收敛
+// 检测两数组各元素差异，判断是否收敛
 func convergenceTest(x1 []float64, x2 []float64, objectNumber int, accuracy int) bool {
 	error := 1 / math.Pow10(accuracy)
 	for m := 0; m < objectNumber; m++ {

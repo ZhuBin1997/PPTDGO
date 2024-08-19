@@ -21,11 +21,12 @@ import (
 	// "github.com/Nik-U/pbc"
 )
 
-var gopath = "D:/MyDocuments/Workspace/InPPTD/PPTDGO"
-//var gopath = "/home/PPTD/src/PPTDGO"
+// var gopath = "D:/MyDocuments/Workspace/InPPTD/PPTDGO"
+// var gopath = "/home/PPTD/PPTDGO"
+var gopath = "/home/refrain/workspace/InPPTD-code/PPTD/InPPTD"
 
 func init() {
-	file := gopath + "/src/L2PPTD/" + "L2PPTD" + ".txt"
+	file := gopath + "/L2PPTD/" + "L2PPTD" + ".txt"
 	logFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
 	if err != nil {
 		panic(err)
@@ -62,8 +63,8 @@ func main() {
 }
 
 func Benchmark(workerNumber, objectNumber, keybit, magnitude int) {
-	filename1 := gopath + "/src/normalout1.csv"
-	filename2 := gopath + "/src/normalout2.csv"
+	filename1 := gopath + "/normalout1.csv"
+	filename2 := gopath + "/normalout2.csv"
 	sa, sb := InitializationPhase(workerNumber, objectNumber,
 		filename1, filename2,
 		keybit, magnitude)
@@ -144,8 +145,8 @@ func InitData(K, M int, filename string, magnitude int) [][]*big.Int {
 	return dataBig
 }
 
-//1) Initialization Phase
-//generate two servers with their keys, return the objects of SA and SB
+// 1) Initialization Phase
+// generate two servers with their keys, return the objects of SA and SB
 // magnitude是小数扩大的数量级，也就是保留的位数，详见PPTD论文
 func SystemGen(keyBit, magnitude int) (sa *SA, sb *SB) {
 	L := new(big.Float).SetInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(magnitude)), nil))
@@ -166,7 +167,7 @@ func SystemGen(keyBit, magnitude int) (sa *SA, sb *SB) {
 	return sa, sb
 }
 
-//Step I:
+// Step I:
 func (sa *SA) p1s1(
 	K int,
 	M int,
@@ -177,7 +178,7 @@ func (sa *SA) p1s1(
 	sa.xkm_Big = InitData(K, M, filename, sa.magnitude)
 }
 
-//Step II:
+// Step II:
 func (sb *SB) p1s2(
 	K int,
 	M int,
@@ -188,7 +189,7 @@ func (sb *SB) p1s2(
 	sb.akmBig = InitData(K, M, filename, sb.magnitude)
 }
 
-//Step III
+// Step III
 func (sa *SA) p1s3(sb *SB) {
 
 	startTime := time.Now().UnixNano()
@@ -207,7 +208,7 @@ func (sa *SA) p1s3(sb *SB) {
 	sb.EAxkm_ = sa.EAxkm_
 }
 
-//Step IV
+// Step IV
 func (sb *SB) p1s4(sa *SA) {
 
 	startTime := time.Now().UnixNano()
@@ -247,8 +248,8 @@ func InitializationPhase(
 	return sa, sb
 }
 
-//2) Iteration Phase
-//step1
+// 2) Iteration Phase
+// step1
 func (sa *SA) p2s1(xm []*big.Int, sb *SB) {
 
 	startTime := time.Now().UnixNano()
@@ -404,7 +405,7 @@ func convergenceTest(x1 []*big.Int, x2 []*big.Int, objectNumber int, accuracy in
 	return true
 }
 
-//返回Truth Discovery结果的数组和迭代次数
+// 返回Truth Discovery结果的数组和迭代次数
 func IterationPhase(sa *SA, sb *SB, accuracy int) (xm []*big.Float, iterations int) {
 	x1 := make([]*big.Int, sa.M, sa.M)
 	for i := range x1 {
@@ -453,8 +454,8 @@ func TestL2PPTD() {
 	objectNumber := 10
 	keybit := 1024
 	magnitude := 10
-	filename1 := gopath + "/src/normalout1.csv"
-	filename2 := gopath + "/src/normalout2.csv"
+	filename1 := gopath + "/normalout1.csv"
+	filename2 := gopath + "/normalout2.csv"
 	sa, sb := InitializationPhase(
 		workerNumber, objectNumber,
 		filename1, filename2,
