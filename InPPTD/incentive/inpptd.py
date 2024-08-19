@@ -2,6 +2,8 @@
 import xlwt
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import matplotlib.markers as mmarkers
 
 # 1、数据产生
 def normal_worker(avg,sigma,K,M,excel=True):
@@ -52,6 +54,13 @@ def data_create(avg,sigma,K,M,lazy_factor=10,excel=True):
     lazy=lazy_worker(avg,sigma,K,M,lazy_factor,excel)
     return normal,lazy
 
+def data_create_percentile(avg,sigma,K,M,percentile_lazy,lazy_factor=10,excel=True):
+    # 返回两个大小为(K*,M)的矩阵
+    K_lazy= int(K*percentile_lazy)
+    K_normal = K - K_lazy
+    normal=normal_worker(avg,sigma,K_normal,M,excel)
+    lazy=lazy_worker(avg,sigma,K_lazy,M,lazy_factor,excel)
+    return normal,lazy
 
 # 2、Accuracy&Convergence
 
@@ -115,6 +124,120 @@ def ini_ti(avg,M,delta):
     return t
 
 def accuracy_test():
+    excel=True    
+    # K=100
+    M=20
+    num_task = 100
+    
+    avg = ini_avg(M)
+    sigma=[4]*M
+    ti = ini_ti(avg,M,3)
+    
+    percentile_lazy_set = [0.1*i for i in range(0,10)]
+    num_workers = [20,40,60,80,100]
+    rmse=np.zeros((len(num_workers),len(percentile_lazy_set)),dtype=np.double)
+    colors=list(mcolors.TABLEAU_COLORS.keys()) 
+
+    
+    for i in range(len(num_workers)):
+        K = num_workers[i]
+        for j in range(len(percentile_lazy_set)):
+            percentile_lazy = percentile_lazy_set[j]
+            rmse_temp=0
+            for _ in range(num_task):
+                K_lazy= int(K*percentile_lazy)
+                K_normal = K - K_lazy
+                workers = np.zeros((K, M))
+                data_normal,data_lazy=data_create_percentile(avg,sigma,K,M,percentile_lazy,10,False)
+                workers[0:K_normal] = data_normal
+                workers[K_normal:K] = data_lazy
+                tm=np.array(ti)
+                tm2,wk=Truth_Discovery_Base(workers,tm,K,M)
+                rmse_temp+=RMSE(avg,tm2,M)
+            rmse[i][j] = rmse_temp/num_task
+        
+    for i in range(len(num_workers)):
+        plt.plot(percentile_lazy_set,rmse[i],marker=mmarkers.MarkerStyle.filled_markers[i],linewidth = 3,markerfacecolor='white',markeredgecolor = colors[i],markeredgewidth=3,markersize = 0, label = str(num_workers[i])+' Workers')
+
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+
+    font1 = {'family':"Times New Roman", 'weight' : 'normal', 'size' : 14,}
+
+    plt.xlabel('Percentile of Lazy Workers',font1)
+    plt.ylabel('RMSE',font1)
+    plt.legend(numpoints=1)
+
+    if excel:
+        wbk = xlwt.Workbook()
+        sheet = wbk.add_sheet('Percentile')
+        head = ["percentile_lazy_set"]+[str(i)+' Workers' for i in num_workers]
+        for i in head:
+            sheet.write(0,head.index(i),i)
+        for i in range(len(percentile_lazy_set)):
+            sheet.write(i+1,0,percentile_lazy_set[i])
+            for j in range(len(num_workers)):
+                sheet.write(i+1,j+1,rmse[j][i])
+        wbk.save('rmse_var_lazyfactor.xls')
+    return workers
+    # plt.grid()
+
+    # for i in range(0,6):
+    #     print("rmse[i]",rmse[i])
+
+#     # 图2
+#     t1 = ini_ti(avg, 20, 3)
+#     # t1=[5,1005,40,70,15,5,1005,40,70,15,5,1005,40,70,15,5,1005,40,70,15]
+#     a = 0
+#     # ti=[5,1005,40,70,15,5,1005,40,70,15,5,1005,40,70,15,5,1005,40,70,15]
+#     N = 10
+#     con =[]
+#     k =100
+#     for i in range(6):
+#         con_temp = []
+#         K1 = a
+#         workers = np.zeros((k + K1, M))
+#         workers[0:k] = data_normal[0:k]
+#         workers[k:k + K1] = data_lazy[0:K1]
+#         tm = np.array(ti)
+#             # 应用一次算法
+#         con_temp.append(Convergence(workers, t1, K, M, N))
+
+#             # tm2=Truth_Discovery(normal,tm,K,M,0.001)
+#             # print('aaa',tm2)
+#            # rmse_temp.append(RMSE(avg, tm2, M))
+#         a += 1
+#         con.append(Convergence(workers, t1, k+K1, M, N))
+#     plt.figure()
+#     x_rmse = [i for i in range(1,11)]
+#     plt.plot(x_rmse,con[0], '-ro', linewidth=4, markerfacecolor='white', markeredgecolor='r', markeredgewidth=4,
+#              markersize=11, label='0 Lazy Worker')
+#     plt.plot(x_rmse, con[1], '-b^', linewidth=4, markerfacecolor='white', markeredgecolor='b', markeredgewidth=4,
+#              markersize=10, label='1 Lazy Worker')
+#     plt.plot(x_rmse, con[2], '-gs', linewidth=4, markerfacecolor='white', markeredgecolor='g', markeredgewidth=4,
+#              markersize=10, label='2 Lazy Workers')
+#     plt.plot(x_rmse, con[3], '-cp', linewidth=4, markerfacecolor='white', markeredgecolor='c', markeredgewidth=4,
+#              markersize=10, label='3 Lazy Workers')
+#     plt.plot(x_rmse, con[4], '-kD', linewidth=4, markerfacecolor='white', markeredgecolor='k', markeredgewidth=4,
+#              markersize=10, label='4 Lazy Workers')
+#     plt.plot(x_rmse, con[5], '-yd', linewidth=4, markerfacecolor='white', markeredgecolor='y', markeredgewidth=4,
+#              markersize=10, label='5 Lazy Workers')
+
+#     plt.title('Convergence')
+#     plt.xticks(fontsize=12)
+#     plt.yticks(fontsize=12)
+#     plt.xlabel(r'Iteration $i$',font2)
+#     plt.ylabel('Convergence Value',font1)
+#     plt.legend(numpoints=1)
+#     # plt.grid()
+#     plt.show()
+
+#     for i in range(0,6):
+#         print("con[",i,"]",con[i])
+
+
+
+def accuracy_test2():
     M=20
     avg = ini_avg(M)
     #avg=[100,1000,500,600,140,100,1000,500,600,140,100,1000,500,600,104,100,1000,500,600,100]
@@ -232,8 +355,6 @@ def accuracy_test():
     for i in range(0,6):
         print("con[",i,"]",con[i])
 
-
-
 # （normal和lazy一起统计，Normal权重高于Lazy，效果很好）
 def reward():
     # M:5,40  K=10
@@ -298,6 +419,7 @@ def reward():
 
 # （normal和lazy一起统计，Normal权重高于Lazy，效果很好）
 def reward_var_lazyfactor():
+    excel=True
     # M:5,40  K=10
     K=40
     M=20
@@ -310,7 +432,7 @@ def reward_var_lazyfactor():
     reward_normal_set = []
     reward_lazy_set = []
     normal_lazy_compare_set = []
-    num_tasks = 30
+    num_tasks = 10
     percentile_lazy_set = [0.1*i for i in range(0,10)]
     Price = 100
     for percentile_lazy in percentile_lazy_set:
@@ -331,14 +453,14 @@ def reward_var_lazyfactor():
             
             tm2,wk=Truth_Discovery(workers,tm,K,M,0.001)
             w = wk.sum()
-            if i == 0:
-                print(len(wk),w,wk)
+            # if i == 0:
+            #     print(len(wk),w,wk)
             
-            normal_reward += wk[0:K_normal].sum()/(K_normal*w)
-            # normal_reward += wk[0:K_normal].sum()*Price/(K_normal*w)
+            # normal_reward += wk[0:K_normal].sum()/(K_normal*w)
+            normal_reward += wk[0:K_normal].sum()*Price/(K_normal*w)
             lazy_set = wk[K_normal:K]
-            lazy_reward += lazy_set.sum()/(K_lazy*w)
-            # lazy_reward += lazy_set.sum()*Price/(K_lazy*w)
+            # lazy_reward += lazy_set.sum()/(K_lazy*w)
+            lazy_reward += lazy_set.sum()*Price/(K_lazy*w)
         reward_normal_set.append(normal_reward)
         reward_lazy_set.append(lazy_reward)
         normal_lazy_compare_set.append(normal_reward/lazy_reward)
@@ -367,7 +489,20 @@ def reward_var_lazyfactor():
 
     plt.legend(numpoints=1)
     plt.show()
-
+    
+    if excel:
+        wbk = xlwt.Workbook()
+        sheet = wbk.add_sheet('Percentile')
+        head = ["percentile_lazy_set","reward_normal_set","reward_lazy_set","normal_lazy_compare_set"]
+        for i in head:
+            sheet.write(0,head.index(i),i)
+        for i in range(len(percentile_lazy_set)):
+            sheet.write(i+1,0,percentile_lazy_set[i])
+            sheet.write(i+1,1,reward_normal_set[i])
+            sheet.write(i+1,2,reward_lazy_set[i])
+            sheet.write(i+1,3,normal_lazy_compare_set[i])
+        wbk.save('reward_var_lazyfactor.xls')
+    return workers
 
 if __name__ == '__main__':
     accuracy_test()
