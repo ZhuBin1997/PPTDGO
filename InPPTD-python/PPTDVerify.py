@@ -8,7 +8,7 @@ from PETD import *
 # -------------------------------------------------------------------------------------------------
 # benchmarking operations
 low = 0
-high = 1e6
+high = 1e10
 batch = 100
 a = np.random.randint(low, high, batch).tolist()
 b = np.random.randint(low, high, batch).tolist()
