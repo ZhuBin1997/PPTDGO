@@ -8,7 +8,7 @@ from PETD import *
 # -------------------------------------------------------------------------------------------------
 # benchmarking operations
 low = 0
-high = 1e10
+high = 1e6
 batch = 100
 a = np.random.randint(low, high, batch).tolist()
 b = np.random.randint(low, high, batch).tolist()
@@ -63,8 +63,10 @@ def RPTD_iterations(
     return fn_cost, csp_cost
 
 
-def RPTD_data_collection():
-    pass
+def RPTD_data_collection_user(encryption_cost, M):
+    user_cost = (2 * M + 1) * encryption_cost
+    return user_cost
+
 
 
 def L2PPTD_iterations(
@@ -93,7 +95,6 @@ def L2PPTD_data_collection(
     sa_cost = M * K * encryption_cost
     sb_cost = M * K * encryption_cost
     return sa_cost, sb_cost
-
 
 def InPPTD_data_collection(
     encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, M, K
@@ -232,26 +233,10 @@ def PETD_iterations_Complexity(
     )
     return c1_cost, c2_cost
 
-if __name__ == "__main__":
-    encryption_cost = test_encryption_time() / batch
-    print(
-        f"Single Paillier encryption with key size 2048-bit takes {encryption_cost:.6f} seconds"
-    )
-    HAdd_cost = test_HAdd_time() / batch
-    print(
-        f"Single Paillier addition with key size 2048-bit takes {HAdd_cost:.6f} seconds"
-    )
-    HMultScalar_cost = test_HMultScalar_time() / batch
-    print(
-        f"Single Paillier Multiplication via a scalar with key size 2048-bit takes {HMultScalar_cost:.6f} seconds"
-    )
-    decryption_cost = test_decryption_time() / batch
-    print(
-        f"Single Paillier decryption with key size 2048-bit takes {decryption_cost:.6f} seconds"
-    )
-
+def Test_M_fixed(encryption_cost,HAdd_cost,HMultScalar_cost,decryption_cost):
     M = 50
     K_range = [10, 25, 50, 75, 100, 125, 150, 175, 200]
+
     # RPTD results
     fn_cost_list = []
     csp_cost_list = []
@@ -377,3 +362,161 @@ if __name__ == "__main__":
     np.savetxt("data/PETD_Iterations_C1_cost_complexity.csv", c1_iteration_cost_list, delimiter=",")
     np.savetxt("data/PETD_Iterations_C2_cost_complexity.csv", c2_iteration_cost_list, delimiter=",")
     np.savetxt("data/PETD_Preparation_C1_cost_complexity.csv", c1_preparation_cost_list, delimiter=",")
+
+
+def Test_K_fixed(encryption_cost,HAdd_cost,HMultScalar_cost,decryption_cost):
+    K_fixed = 50
+    M_range = [10, 20, 30, 40, 50,60,70,80,90,100]
+
+    # RPTD results
+
+    rptd_user_list=[]
+    for m in M_range:
+        RPTD_user = RPTD_data_collection_user(encryption_cost, m)
+        rptd_user_list.append(RPTD_user)
+    np.savetxt("data_K_fixed/RPTD_data_collection_user_cost.csv", rptd_user_list, delimiter=",")
+
+    fn_cost_list = []
+    csp_cost_list = []
+    for m in M_range:
+        fn_cost, csp_cost = RPTD_iterations(
+            encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+        )
+        fn_cost_list.append(fn_cost)
+        csp_cost_list.append(csp_cost)
+    np.savetxt("data_K_fixed/RPTD_Iterations_FN_cost.csv", fn_cost_list, delimiter=",")
+    np.savetxt("data_K_fixed/RPTD_Iterations_CSP_cost.csv", csp_cost_list, delimiter=",")
+
+    # L2PPTD results
+    sa_iteration_cost_list = []
+    sb_iteration_cost_list = []
+    sa_data_collection_cost_list = []
+    sb_data_collection_cost_list = []
+    for m in M_range:
+        sa_iteration_cost, sb_iteration_cost = L2PPTD_iterations(
+            encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+        )
+        sa_iteration_cost_list.append(sa_iteration_cost)
+        sb_iteration_cost_list.append(sb_iteration_cost)
+        sa_data_collection_cost, sb_data_collection_cost = L2PPTD_data_collection(
+            encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+        )
+        sa_data_collection_cost_list.append(sa_data_collection_cost)
+        sb_data_collection_cost_list.append(sb_data_collection_cost)
+    np.savetxt("data_K_fixed/L2PPTD_Iterations_SA_cost.csv", sa_iteration_cost_list, delimiter=",")
+    np.savetxt("data_K_fixed/L2PPTD_Iterations_SB_cost.csv", sb_iteration_cost_list, delimiter=",")
+    np.savetxt(
+        "data_K_fixed/L2PPTD_DataCollection_SA_cost.csv", sa_data_collection_cost_list, delimiter=","
+    )
+    np.savetxt(
+        "data_K_fixed/L2PPTD_DataCollection_SB_cost.csv", sb_data_collection_cost_list, delimiter=","
+    )
+
+    # InPPTD results
+    sp_data_collection_cost_list = []
+    cp_data_collection_cost_list = []
+
+    sp_iteration_cost_list = []
+    cp_iteration_cost_list = []
+
+    cp_single_incentive_cost_list = []
+
+    sp_aggregation_incentive_cost_list = []
+    cp_aggregation_incentive_cost_list = []
+
+    for m in M_range:
+        sp_data_collection_cost, cp_data_collection_cost = InPPTD_data_collection(
+            encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+        )
+        sp_data_collection_cost_list.append(sp_data_collection_cost)
+        cp_data_collection_cost_list.append(cp_data_collection_cost)
+
+        sp_iteration_cost, cp_iteration_cost = InPPTD_iterations(
+            encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+        )
+        sp_iteration_cost_list.append(sp_iteration_cost)
+        cp_iteration_cost_list.append(cp_iteration_cost)
+
+        cp_single_incentive_cost = InPPTD_single_incentive(
+            encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+        )
+        cp_single_incentive_cost_list.append(cp_single_incentive_cost)
+
+        sp_aggregation_incentive_cost, cp_aggregation_incentive_cost = (
+            InPPTD_aggregation_incentive(
+                encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+            )
+        )
+        sp_aggregation_incentive_cost_list.append(sp_aggregation_incentive_cost)
+        cp_aggregation_incentive_cost_list.append(cp_aggregation_incentive_cost)
+
+    np.savetxt(
+        "data_K_fixed/InPPTD_DataCollection_SP_cost.csv", sp_data_collection_cost_list, delimiter=","
+    )
+    np.savetxt(
+        "data_K_fixed/InPPTD_DataCollection_CP_cost.csv", cp_data_collection_cost_list, delimiter=","
+    )
+    np.savetxt("data_K_fixed/InPPTD_Iterations_SP_cost.csv", sp_iteration_cost_list, delimiter=",")
+    np.savetxt("data_K_fixed/InPPTD_Iterations_CP_cost.csv", cp_iteration_cost_list, delimiter=",")
+
+    np.savetxt(
+        "data_K_fixed/InPPTD_Single_Incentive_CP_cost.csv", cp_single_incentive_cost_list, delimiter=","
+    )
+
+    np.savetxt(
+        "data_K_fixed/InPPTD_Aggregation_Incentive_SP_cost.csv",
+        sp_aggregation_incentive_cost_list,
+        delimiter=",",
+    )
+    np.savetxt(
+        "data_K_fixed/InPPTD_Aggregation_Incentive_CP_cost.csv",
+        cp_aggregation_incentive_cost_list,
+        delimiter=",",
+    )
+
+    # PETD result: by implementation of Zhao
+    # c1_cost_list = []
+    # c2_cost_list = []
+    # for k in K_range:
+    #     c1_cost, c2_cost = PETD_iterations(m, K_fixed)
+    #     c1_cost_list.append(c1_cost)
+    #     c2_cost_list.append(c2_cost)
+    # np.savetxt("PETD_Iterations_C1.csv", c1_cost_list, delimiter=",")
+    # np.savetxt("PETD_Iterations_C2.csv", c2_cost_list, delimiter=",")
+
+    # PETD result: by complexity analysis
+    c1_iteration_cost_list = []
+    c2_iteration_cost_list = []
+
+    c1_preparation_cost_list = []
+    for m in M_range:
+        c1_cost, c2_cost = PETD_iterations_Complexity(
+             encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+        )
+        c1_iteration_cost_list.append(c1_cost)
+        c2_iteration_cost_list.append(c2_cost)
+
+        c1_preparation_cost_list.append(PETD_preparation_Complexity(encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed))
+    np.savetxt("data_K_fixed/PETD_Iterations_C1_cost_complexity.csv", c1_iteration_cost_list, delimiter=",")
+    np.savetxt("data_K_fixed/PETD_Iterations_C2_cost_complexity.csv", c2_iteration_cost_list, delimiter=",")
+    np.savetxt("data_K_fixed/PETD_Preparation_C1_cost_complexity.csv", c1_preparation_cost_list, delimiter=",")
+
+if __name__ == "__main__":
+    encryption_cost = test_encryption_time() / batch
+    print(
+        f"Single Paillier encryption with key size 2048-bit takes {encryption_cost:.6f} seconds"
+    )
+    HAdd_cost = test_HAdd_time() / batch
+    print(
+        f"Single Paillier addition with key size 2048-bit takes {HAdd_cost:.6f} seconds"
+    )
+    HMultScalar_cost = test_HMultScalar_time() / batch
+    print(
+        f"Single Paillier Multiplication via a scalar with key size 2048-bit takes {HMultScalar_cost:.6f} seconds"
+    )
+    decryption_cost = test_decryption_time() / batch
+    print(
+        f"Single Paillier decryption with key size 2048-bit takes {decryption_cost:.6f} seconds"
+    )
+    Test_M_fixed(encryption_cost,HAdd_cost,HMultScalar_cost,decryption_cost)
+    Test_K_fixed(encryption_cost,HAdd_cost,HMultScalar_cost,decryption_cost)
