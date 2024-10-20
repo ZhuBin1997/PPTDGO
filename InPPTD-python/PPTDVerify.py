@@ -119,18 +119,18 @@ def InPPTD_iterations(
 
 
 def InPPTD_single_incentive(
-    encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, n, K
+    encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, K
 ):
-    cp_cost = K * encryption_cost + K * HAdd_cost + K * HMultScalar_cost
+    cp_cost = K * encryption_cost + 2 * K * HAdd_cost + K * HMultScalar_cost
     return cp_cost
 
 
 def InPPTD_aggregation_incentive(
-    encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, n, K
+    encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, K
 ):
-    cp_cost = (n - 1) * K * HAdd_cost
+    # cp_cost = (n - 1) * K * HAdd_cost
     sp_cost = K * decryption_cost
-    return sp_cost, cp_cost
+    return sp_cost
 
 # implementation of Zhao
 # def PETD_iterations_Zhao(M,K):
@@ -300,17 +300,16 @@ def Test_M_fixed(encryption_cost,HAdd_cost,HMultScalar_cost,decryption_cost):
         cp_iteration_cost_list.append(cp_iteration_cost)
 
         cp_single_incentive_cost = InPPTD_single_incentive(
-            encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, M, k
+            encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, k
         )
         cp_single_incentive_cost_list.append(cp_single_incentive_cost)
 
-        sp_aggregation_incentive_cost, cp_aggregation_incentive_cost = (
+        sp_aggregation_incentive_cost = (
             InPPTD_aggregation_incentive(
-                encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, M, k
+                encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, k
             )
         )
         sp_aggregation_incentive_cost_list.append(sp_aggregation_incentive_cost)
-        cp_aggregation_incentive_cost_list.append(cp_aggregation_incentive_cost)
 
     np.savetxt(
         "data/InPPTD_DataCollection_SP_cost.csv", sp_data_collection_cost_list, delimiter=","
@@ -328,11 +327,6 @@ def Test_M_fixed(encryption_cost,HAdd_cost,HMultScalar_cost,decryption_cost):
     np.savetxt(
         "data/InPPTD_Aggregation_Incentive_SP_cost.csv",
         sp_aggregation_incentive_cost_list,
-        delimiter=",",
-    )
-    np.savetxt(
-        "data/InPPTD_Aggregation_Incentive_CP_cost.csv",
-        cp_aggregation_incentive_cost_list,
         delimiter=",",
     )
 
@@ -419,10 +413,10 @@ def Test_K_fixed(encryption_cost,HAdd_cost,HMultScalar_cost,decryption_cost):
     sp_iteration_cost_list = []
     cp_iteration_cost_list = []
 
-    cp_single_incentive_cost_list = []
+    # cp_single_incentive_cost_list = []
 
-    sp_aggregation_incentive_cost_list = []
-    cp_aggregation_incentive_cost_list = []
+    # sp_aggregation_incentive_cost_list = []
+    # cp_aggregation_incentive_cost_list = []
 
     for m in M_range:
         sp_data_collection_cost, cp_data_collection_cost = InPPTD_data_collection(
@@ -437,18 +431,18 @@ def Test_K_fixed(encryption_cost,HAdd_cost,HMultScalar_cost,decryption_cost):
         sp_iteration_cost_list.append(sp_iteration_cost)
         cp_iteration_cost_list.append(cp_iteration_cost)
 
-        cp_single_incentive_cost = InPPTD_single_incentive(
-            encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
-        )
-        cp_single_incentive_cost_list.append(cp_single_incentive_cost)
+        # cp_single_incentive_cost = InPPTD_single_incentive(
+        #     encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+        # )
+        # cp_single_incentive_cost_list.append(cp_single_incentive_cost)
 
-        sp_aggregation_incentive_cost, cp_aggregation_incentive_cost = (
-            InPPTD_aggregation_incentive(
-                encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
-            )
-        )
-        sp_aggregation_incentive_cost_list.append(sp_aggregation_incentive_cost)
-        cp_aggregation_incentive_cost_list.append(cp_aggregation_incentive_cost)
+        # sp_aggregation_incentive_cost, cp_aggregation_incentive_cost = (
+        #     InPPTD_aggregation_incentive(
+        #         encryption_cost, HAdd_cost, HMultScalar_cost, decryption_cost, m, K_fixed
+        #     )
+        # )
+        # sp_aggregation_incentive_cost_list.append(sp_aggregation_incentive_cost)
+        # cp_aggregation_incentive_cost_list.append(cp_aggregation_incentive_cost)
 
     np.savetxt(
         "data_K_fixed/InPPTD_DataCollection_SP_cost.csv", sp_data_collection_cost_list, delimiter=","
@@ -459,20 +453,20 @@ def Test_K_fixed(encryption_cost,HAdd_cost,HMultScalar_cost,decryption_cost):
     np.savetxt("data_K_fixed/InPPTD_Iterations_SP_cost.csv", sp_iteration_cost_list, delimiter=",")
     np.savetxt("data_K_fixed/InPPTD_Iterations_CP_cost.csv", cp_iteration_cost_list, delimiter=",")
 
-    np.savetxt(
-        "data_K_fixed/InPPTD_Single_Incentive_CP_cost.csv", cp_single_incentive_cost_list, delimiter=","
-    )
+    # np.savetxt(
+    #     "data_K_fixed/InPPTD_Single_Incentive_CP_cost.csv", cp_single_incentive_cost_list, delimiter=","
+    # )
 
-    np.savetxt(
-        "data_K_fixed/InPPTD_Aggregation_Incentive_SP_cost.csv",
-        sp_aggregation_incentive_cost_list,
-        delimiter=",",
-    )
-    np.savetxt(
-        "data_K_fixed/InPPTD_Aggregation_Incentive_CP_cost.csv",
-        cp_aggregation_incentive_cost_list,
-        delimiter=",",
-    )
+    # np.savetxt(
+    #     "data_K_fixed/InPPTD_Aggregation_Incentive_SP_cost.csv",
+    #     sp_aggregation_incentive_cost_list,
+    #     delimiter=",",
+    # )
+    # np.savetxt(
+    #     "data_K_fixed/InPPTD_Aggregation_Incentive_CP_cost.csv",
+    #     cp_aggregation_incentive_cost_list,
+    #     delimiter=",",
+    # )
 
     # PETD result: by implementation of Zhao
     # c1_cost_list = []
